@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Mesa {
+  id      Int      @id @default(autoincrement())
+  numero  Int
+  estado  Boolean  @default(true) // true = libre, false = ocupada
+  pedidos Pedido[]
+
+  @@map("Mesas")
+}
+
+model Plato {
+  id                  Int             @id @default(autoincrement())
+  nombre              String
+  precio              Decimal         @db.Decimal(10, 2)
+  cantidad_disponible Int
+  presas              PlatoPresa[]
+  detalles            DetallePedido[]
+
+  @@map("Platos")
+}
+
+model Presa {
+  id     Int          @id @default(autoincrement())
+  nombre String
+  platos PlatoPresa[]
+
+  @@map("Presas")
+}
+
+model PlatoPresa {
+  id         Int      @id @default(autoincrement())
+  plato_id   Int
+  presa_id   Int
+  plato      Plato    @relation(fields: [plato_id], references: [id], onDelete: Cascade)
+  presa      Presa    @relation(fields: [presa_id], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("plato_presa")
+}
+
+model Pedido {
+  id        Int             @id @default(autoincrement())
+  mesa_id   Int
+  fecha     DateTime        @default(now())
+  total     Decimal         @default(0.00) @db.Decimal(10, 2)
+  estado    String          @default("pendiente") // pendiente | en_preparacion | entregado | cancelado
+  mesa      Mesa            @relation(fields: [mesa_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  detalles  DetallePedido[]
+
+  @@map("Pedidos")
+}
+
+model DetallePedido {
+  id        Int     @id @default(autoincrement())
+  pedido_id Int
+  plato_id  Int
+  cantidad  Int
+  subtotal  Decimal @db.Decimal(10, 2)
+  pedido    Pedido  @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  plato     Plato   @relation(fields: [plato_id], references: [id], onDelete: Restrict)
+
+  @@map("Detalle_Pedido")
+}
