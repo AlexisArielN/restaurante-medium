@@ -41,7 +41,6 @@ export default function MesasPage() {
       ]);
       setMesas(mesasData);
 
-      // Por cada mesa, guardamos el pedido activo más reciente (si existe).
       const mapa: Record<number, Pedido> = {};
       for (const pedido of pedidosData) {
         if (!ESTADOS_ACTIVOS.includes(pedido.estado)) continue;
@@ -124,7 +123,11 @@ export default function MesasPage() {
       <PageHeader
         title="Mesas"
         description="Gestioná el salón y el estado de ocupación de cada mesa."
-        action={<Button onClick={abrirNuevo}>+ Nueva mesa</Button>}
+        action={
+          <Button onClick={abrirNuevo} className="w-full sm:w-auto">
+            + Nueva mesa
+          </Button>
+        }
       />
 
       <ErrorBanner message={error} />
@@ -154,11 +157,16 @@ export default function MesasPage() {
                 Mesa libre
               </label>
             </div>
-            <div className="flex gap-2">
-              <Button type="submit" disabled={guardando}>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="submit" disabled={guardando} className="flex-1 sm:flex-none">
                 {guardando ? "Guardando..." : editando ? "Actualizar" : "Crear"}
               </Button>
-              <Button type="button" variant="ghost" onClick={() => setMostrarForm(false)}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setMostrarForm(false)}
+                className="flex-1 sm:flex-none"
+              >
                 Cancelar
               </Button>
             </div>
@@ -174,7 +182,7 @@ export default function MesasPage() {
       ) : mesas.length === 0 ? (
         <EmptyState message="Todavía no hay mesas registradas." />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
           {mesas.map((mesa) => {
             const pedidoActivo = pedidosActivos[mesa.id];
             const ocupadaConPedido = !mesa.estado && pedidoActivo;
@@ -188,7 +196,7 @@ export default function MesasPage() {
               >
                 {ocupadaConPedido ? (
                   <Link href={`/pedidos/${pedidoActivo.id}`} className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-xl font-semibold text-white">Mesa {mesa.numero}</span>
                       <Badge tone="red">Ocupada</Badge>
                     </div>
@@ -198,18 +206,18 @@ export default function MesasPage() {
                     </p>
                   </Link>
                 ) : (
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-xl font-semibold text-white">Mesa {mesa.numero}</span>
                     <Badge tone={mesa.estado ? "green" : "red"}>
                       {mesa.estado ? "Libre" : "Ocupada"}
                     </Badge>
                   </div>
                 )}
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
                   <Button variant="secondary" className="flex-1" onClick={() => abrirEditar(mesa)}>
                     Editar
                   </Button>
-                  <Button variant="danger" onClick={() => eliminar(mesa)}>
+                  <Button variant="danger" className="flex-1 sm:flex-none" onClick={() => eliminar(mesa)}>
                     Eliminar
                   </Button>
                 </div>
